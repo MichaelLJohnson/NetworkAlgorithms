@@ -1,35 +1,57 @@
-# Graph Class written by econchick
+# Graph Class originally written by econchick
 class Graph:
-  def __init__(self):
-    self.nodes = list()
-    self.edges = dict()
-    self.distance = {}
 
-  def add_node(self, value):
-    self.nodes.append(value)
+    # Constructor
+    def __init__(self):
+        self.nodes = list()
+        self.edges = dict()
+        self.distance = dict()
 
-  def add_edge(self, from_node, to_node, distance):
-    self.edges[from_node] = to_node
-    self.edges[to_node] = from_node
-    self.distance[(from_node, to_node)] = distance
-    self.distance[(to_node, from_node)] = distance
+    # Add a node (Through it's label) to the graph
+    def add_node(self, value):
+        self.nodes.append(value)
+
+    # Add a Bidirectional Edge to the Graph
+    def add_edge(self, from_node, to_node, distance):
+
+        # Connect the two nodes
+        self.edges[from_node] = to_node
+        self.edges[to_node] = from_node
+
+        # Add the edge distance to distance dictionary
+        self.distance[(from_node, to_node)] = distance
+        self.distance[(to_node, from_node)] = distance
 
 
-def dijkstra(graph, initial):
-    distToNode = [(initial, 0, initial)]
+def dijkstra(graph, source):
+    ## dijkstra: a function that runs dijkstra's algorithm for the given graph and source node
+    # @graph: the graph to implement dijkstra's algorithm on
+    # @source: the source node for dijkstra's algorithm
 
+
+    ## Initialize variables
+
+    # Solution List (Node, Distance to Source, Path)
+    distToNode = [(source, 0, source)]
+    
+    # Nodes left to visit
     notVisited = list(graph.nodes)
-    notVisited.remove(initial)
-    min_value = 0
-    min_node = None
+    notVisited.remove(source)
 
+    # Calculate Maximum Possible Distance for the graph
+    MAX_DISTANCE = 0
     for arc in graph.distance:
-        min_value += graph.distance[arc]
+        MAX_DISTANCE += graph.distance[arc]
+    MAX_DISTANCE /= 2                           # This is as the arcs are bidirectional 
 
+
+    # Run while there are nodes in notVisited
     while notVisited:
+
+        # Initialize the table of nodes and distance to node
         table = dict()
 
-        # Make dictionary of notVisted nodes and shortest path to src
+        # Make dictionary of notVisted nodes and shortest path to source
         for prevNode, distance, path in distToNode:
             for node in notVisited:
                 if (prevNode, node) in graph.distance:
@@ -40,12 +62,16 @@ def dijkstra(graph, initial):
                 elif node not in table:
                     table[node] = None
 
+        # Initialize the minimum distance 
+        min_distance = MAX_DISTANCE
+        min_node = None
+
         # Find min distance to src
         for node in table:
             if (table[node] != None):
-                if (table[node][0] < min_value):
+                if (table[node][0] < min_distance):
                     min_node = node
-                    min_value = table[min_node][0]
+                    min_distance = table[min_node][0]
 
         # Add min distance / node to distanceTo Node dict
         distToNode.append((min_node, table[min_node][0], table[min_node][1]+min_node))
@@ -55,6 +81,6 @@ def dijkstra(graph, initial):
 
         # Repeat while notVisted is not empty
       
-    # Return the list of tuples 
+    # Return the solution (list of tuples)
     return distToNode
 
